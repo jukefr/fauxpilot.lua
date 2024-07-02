@@ -1,0 +1,36 @@
+name: 'new and improved absolutely cursed patcher'
+
+on:
+  schedule:
+    - cron:  '0 1 * * *' # run every day at 1am
+  workflow_dispatch: 
+
+jobs:
+  cursed:
+    runs-on: ubuntu-latest
+    env:
+      WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v3
+    - name: cursed part
+      run: |
+        # store current action in a variable
+        action=$(cat .github/workflows/cursed.yaml)
+        # remove everything lol
+        ls -A1 | xargs rm -rf
+        # clone back
+        git clone https://github.com/zbirenbaum/copilot.lua .
+        # add back action
+        echo "$action" > .github/workflows/cursed.yaml
+        # patch agent.js
+        sed 's|https://api.github.com/copilot_internal|http://127.0.0.1:5000/copilot_internal|g' -i copilot/dist/agent.js
+        sed 's|https://copilot-proxy.githubusercontent.com|http://127.0.0.1:5000|g' -i copilot/dist/agent.js
+        # config git
+        git config --global user.name "absolutely cursed patcher"
+        git config --global user.email "cursed@patcher"
+        # add stuff and force push
+        git add -A
+        git commit -m 'cursed auto patching'
+        git remote set-url origin https://jukefr:$WORKFLOW_TOKEN@github.com/jukefr/fauxpilot.lua
+        git push --force origin master
